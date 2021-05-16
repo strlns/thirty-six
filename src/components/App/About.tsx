@@ -16,26 +16,16 @@ export default () => {
         <Modal open={isExplanationModalOpen}>
             <Box className={ModalBaseStyles().root}>
                 <Box display='flex' justifyContent={'space-between'} alignItems={'center'}>
-                    <h1>Ksuduo</h1>
+                    <h1>Thirty-six</h1>
                     <IconButton edge='end' title="Close" onClick={() => setExplanationModalOpen(false)}>
                         <CloseRounded/>
                     </IconButton>
                 </Box>
                 <h3>How to play?</h3>
                 <p>
-                    See <a href="https://en.wikipedia.org/wiki/Sudoku" target="_blank">Wikipedia on Sudoku</a>
-                </p>
-                <h3>How does the generator work? Why is it slow?</h3>
-                <p>
-                    It starts with a randomly generated, completely filled board.
-                    Then cells are cleared one at a time, after each removal, the board is solved and checked for
-                    multiple solutions.
-                    A sudoku with more than one solution is not a sudoku.
-                    If no cell can be removed without rendering the board invalid,
-                    the fully completed "seed" board is discarded.
-                    Rinse, repeat until the desired number of cells is cleared.
-                    The process is not optimized for good performance.
-                    This is a learning project.
+                    This is sudoku variant with only 6 numbers and 6 2x3 blocks.
+                    The rules are the same as in normal sudoku.
+                    See <a href="https://en.wikipedia.org/wiki/Sudoku" target="_blank">Wikipedia on Sudoku</a>.
                 </p>
                 <h3>Difficulty levels</h3>
                 <p>
