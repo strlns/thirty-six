@@ -48,7 +48,6 @@ if (window.Worker) {
 }
 
 const checkWebWorkerSupport = async (): Promise<boolean> => {
-    console.log(`calling checkWebWorkerSupport (this should only happen once)`)
     return await testWorker();
 }
 
