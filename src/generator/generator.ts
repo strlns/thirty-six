@@ -107,7 +107,6 @@ function generateSudoku(numberOfClues: number, difficulty = DIFFICULTY_LEVEL.EAS
             }
 
             board.setCell({...cell, value: CellValue.EMPTY, isInitial: false}, false);
-            // board.setCell({...cell, value: CellValue.EMPTY, isInitial: false});
 
             if (achievedNumberOfEmptyCells < 4) {
                 // At least 4 empty cells are needed to make the board invalid.

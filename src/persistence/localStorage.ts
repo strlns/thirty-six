@@ -2,7 +2,6 @@ import {Sudoku} from "../model/Sudoku";
 import {Solution} from "../solver/solver";
 import {BOARD_SIZE} from "../model/Board";
 import {DIFFICULTY_LEVEL} from "../generator/generator";
-import {staticInitBoard} from "../examples/validExamples";
 
 export const LOCALSTORAGE_KEY = 'thirtySixState';
 
@@ -53,7 +52,7 @@ export const restoreGameStateOrInitialize = (): GameStateSerializable => {
         console.log('localStorage read.', lsResult)
     }
     return lsResult ?? {
-        board: staticInitBoard(),
+        board: new Sudoku(),
         secondsElapsed: 0,
         isPaused: false,
         timerEnabled: false,

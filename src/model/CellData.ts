@@ -1,7 +1,5 @@
 import {CellIndex} from "./Board";
 
-export const EMPTY_CELL_VALUE: null = null;
-
 export enum CellValue {
     EMPTY = 0,
     ONE = 1,
@@ -10,9 +8,6 @@ export enum CellValue {
     FOUR,
     FIVE,
     SIX,
-    SEVEN,
-    EIGHT,
-    NINE
 }
 
 /**
