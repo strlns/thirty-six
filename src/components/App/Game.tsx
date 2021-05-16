@@ -48,17 +48,9 @@ if (window.Worker) {
 }
 
 const checkWebWorkerSupport = async (): Promise<boolean> => {
+    console.log(`calling checkWebWorkerSupport (this should only happen once)`)
     return await testWorker();
 }
-/**
- * jump through some hoops, because presence of window.Worker alone doesn't guarantee that
- * the Worker actually works (CORS, Blockers...). Verify with a test message that the Web Worker works.
- */
-checkWebWorkerSupport().then(
-    (value => {
-        useWebWorker = value;
-    })
-);
 
 let timer = new Timer();
 
@@ -69,6 +61,7 @@ export interface GameState {
     difficulty: DIFFICULTY_LEVEL,
     currentDifficulty: DIFFICULTY_LEVEL,
     highlightedCell: OptionalCell,
+    initialBoardIsSolved: boolean,
     isWorking: boolean,
     forceFocus: OptionalCell,
     solutionShown: boolean,
@@ -88,16 +81,17 @@ interface GameProps {
  */
 
 const {
-    board: initialBoard,
+    board,
     secondsElapsed: initialSeconds,
     isPaused: initialIsPaused,
     timerEnabled: initialTimerEnabled,
-    currentDifficulty
+    currentDifficulty,
+    solutionShown
 } = restoreGameStateOrInitialize();
 
 export const Game = (props: GameProps) => {
     const [state, setState] = useState({
-        sudoku: initialBoard,
+        sudoku: board,
         numberOfClues: DEFAULT_CLUES,
         currentDifficulty,
         difficulty: currentDifficulty ?? DIFFICULTY_LEVEL.EASY,
@@ -105,8 +99,8 @@ export const Game = (props: GameProps) => {
         isWorking: false,
         msg: '',
         forceFocus: undefined as OptionalCell,
-        // do not repeat congratulation on reload.
-        solutionShown: initialBoard.isSolved(),
+        initialBoardIsSolved: board.isSolved(),
+        solutionShown: solutionShown,
         secondsElapsed: initialSeconds,
         isPaused: initialIsPaused,
         timerEnabled: initialTimerEnabled,
@@ -169,12 +163,13 @@ export const Game = (props: GameProps) => {
                 if (!Array.isArray(event.data)) {
                     throw new Error('Unexpected response');
                 }
+                const genState = stateFromGenerator(result);
                 setState(prevState =>
                     ({
                         ...prevState,
                         ...resetStateCommons,
                         currentDifficulty: state.difficulty,
-                        ...stateFromGenerator(result)
+                        ...genState
                     })
                 );
                 timer.start();
@@ -208,17 +203,18 @@ export const Game = (props: GameProps) => {
     };
 
     const resetSudoku = () => {
-        const sudoku = cloneDeep(state.sudoku);
-        sudoku.reset();
-        setState(prevState => ({
-            ...prevState,
-            sudoku: sudoku,
-            ...resetStateCommons
-        }));
         if (state.sudoku.isEmpty()) {
             generateSudoku();
+        } else {
+            const sudoku = cloneDeep(state.sudoku);
+            sudoku.reset();
+            setState(prevState => ({
+                ...prevState,
+                sudoku: sudoku,
+                ...resetStateCommons
+            }));
+            timer.start();
         }
-        timer.start();
     }
 
     const showSolution = () => {
@@ -228,9 +224,9 @@ export const Game = (props: GameProps) => {
     }
 
     const persistState = () => {
-        const {sudoku: board, isPaused, secondsElapsed, timerEnabled, currentDifficulty} = state;
+        const {sudoku: board, isPaused, secondsElapsed, timerEnabled, currentDifficulty, solutionShown} = state;
         persist({
-            board, isPaused, secondsElapsed, timerEnabled, currentDifficulty
+            board, isPaused, secondsElapsed, timerEnabled, currentDifficulty, solutionShown
         } as GameStateSerializable);
     }
 
@@ -289,6 +285,20 @@ export const Game = (props: GameProps) => {
     useEffect(
         () => {
             setSupportsInputModeAttribute(isInputModeAttributeSupported());
+
+            /**
+             * jump through some hoops, because presence of window.Worker alone doesn't guarantee that
+             * the Worker actually works (CORS, Blockers...). Verify with a test message that the Web Worker works.
+             */
+            checkWebWorkerSupport().then(
+                (value => {
+                    useWebWorker = value;
+                    if (state.sudoku.isEmpty()) {
+                        generateSudoku();
+                    }
+                })
+            );
+
             if (!state.isPaused) {
                 timer.start(state.secondsElapsed)
             }
@@ -322,7 +332,7 @@ export const Game = (props: GameProps) => {
 
     /*Stop timer on completion. */
     useEffect(() => {
-            setWinnerModalOpen(state.sudoku.isSolved() && !state.solutionShown);
+            setWinnerModalOpen(state.sudoku.isSolved() && !state.solutionShown && !state.initialBoardIsSolved);
             if (state.sudoku.isSolved()) {
                 timer.pause();
             } else if (!state.isPaused) {

@@ -53,7 +53,8 @@ export default (props: GeneratorConfigurationProps) => {
                 </NativeSelect>
             </FormControl>
         </ThemeProvider>
-        <InputLabel htmlFor="difficulty-select" style={{fontSize: '.75rem'}}>
+        <InputLabel htmlFor="difficulty-select"
+                    style={{marginTop: ksuduoThemeNormal.spacing(1), fontSize: '.75rem'}}>
             Number of hints (filled cells)
         </InputLabel>
         <DiscreteRangeSlider id={"difficulty-select"}
