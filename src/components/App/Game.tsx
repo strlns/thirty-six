@@ -108,6 +108,7 @@ export const Game = (props: GameProps) => {
     const resetStateCommons = {
         solutionShown: false,
         highlightedCell: undefined,
+        initialBoardIsSolved: false,
         isWorking: false,
         isPaused: false,
         msg: '',
